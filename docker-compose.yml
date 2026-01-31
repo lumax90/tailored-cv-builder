@@ -12,8 +12,7 @@ services:
       POSTGRES_DB: cv_builder
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    # Note: PostgreSQL is only accessible within Docker network, not exposed externally
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U cvbuilder -d cv_builder" ]
       interval: 10s

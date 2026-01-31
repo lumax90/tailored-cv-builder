@@ -59,13 +59,11 @@ app.get('/health', (req, res) => {
 import authRoutes from './routes/auth.routes.ts';
 import cvRoutes from './routes/cv.routes.ts';
 import profileRoutes from './routes/profile.routes.ts';
-import stripeRoutes from './routes/stripe.routes.ts';
 import lemonSqueezyRoutes from './routes/lemonsqueezy.routes.ts';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/cv', cvRoutes);
 app.use('/api/profile', profileRoutes);
-app.use('/api/stripe', stripeRoutes);
 app.use('/api/lemonsqueezy', lemonSqueezyRoutes);
 
 // Serve Static Frontend (Production)

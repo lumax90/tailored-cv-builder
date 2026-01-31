@@ -1,5 +1,5 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 
@@ -31,7 +31,7 @@ RUN adduser --system --uid 1001 cvbuilder
 # Copy package files and install production deps only
 COPY package*.json ./
 COPY prisma ./prisma/
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Generate Prisma Client for production
 RUN npx prisma generate
@@ -55,8 +55,8 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
-# Start server (uses node directly, not nodemon)
+# Start server (uses node directly with TypeScript strip types)
 CMD ["npm", "run", "start:prod"]

@@ -1,10 +1,7 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   db:
     image: postgres:16-alpine
-    container_name: cvbuilder_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: cvbuilder
@@ -12,7 +9,6 @@ services:
       POSTGRES_DB: cv_builder
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    # Note: PostgreSQL is only accessible within Docker network, not exposed externally
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U cvbuilder -d cv_builder" ]
       interval: 10s
@@ -24,7 +20,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: cvbuilder_app
     restart: unless-stopped
     depends_on:
       db:
@@ -35,28 +30,33 @@ services:
       - DATABASE_URL=postgresql://cvbuilder:${DB_PASSWORD:-cvbuilder_secret}@db:5432/cv_builder?schema=public
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
       - JWT_SECRET=${JWT_SECRET}
+      # AI APIs
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
-      - STRIPE_STARTER_PRICE_ID=${STRIPE_STARTER_PRICE_ID}
-      - STRIPE_PRO_PRICE_ID=${STRIPE_PRO_PRICE_ID}
-      - STRIPE_UNLIMITED_PRICE_ID=${STRIPE_UNLIMITED_PRICE_ID}
+      # Email
       - RESEND_API_KEY=${RESEND_API_KEY}
       - EMAIL_FROM=${EMAIL_FROM}
+      # Turnstile (Cloudflare Bot Protection)
+      - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}
+      # LemonSqueezy Payment Integration
+      - LEMONSQUEEZY_API_KEY=${LEMONSQUEEZY_API_KEY}
+      - LEMONSQUEEZY_STORE_ID=${LEMONSQUEEZY_STORE_ID}
+      - LEMONSQUEEZY_STORE_SUBDOMAIN=${LEMONSQUEEZY_STORE_SUBDOMAIN}
+      - LEMONSQUEEZY_WEBHOOK_SECRET=${LEMONSQUEEZY_WEBHOOK_SECRET}
+      - LEMON_STARTER_MONTHLY=${LEMON_STARTER_MONTHLY}
+      - LEMON_STARTER_ANNUAL=${LEMON_STARTER_ANNUAL}
+      - LEMON_PRO_MONTHLY=${LEMON_PRO_MONTHLY}
+      - LEMON_PRO_ANNUAL=${LEMON_PRO_ANNUAL}
+      - LEMON_UNLIMITED_MONTHLY=${LEMON_UNLIMITED_MONTHLY}
+      - LEMON_UNLIMITED_ANNUAL=${LEMON_UNLIMITED_ANNUAL}
     expose:
       - "3000"
-    # Note: Port is exposed internally, Coolify's Traefik proxy handles external routing
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3000/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
 
 volumes:
   postgres_data:
-
-
-networks:
-  default:
-    name: cvbuilder_network

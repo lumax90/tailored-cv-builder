@@ -44,8 +44,9 @@ services:
       - STRIPE_UNLIMITED_PRICE_ID=${STRIPE_UNLIMITED_PRICE_ID}
       - RESEND_API_KEY=${RESEND_API_KEY}
       - EMAIL_FROM=${EMAIL_FROM}
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
+    # Note: Port is exposed internally, Coolify's Traefik proxy handles external routing
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3000/health" ]
       interval: 30s

@@ -72,7 +72,8 @@ if (isProduction) {
     app.use(express.static(distPath));
 
     // SPA fallback - serve index.html for all non-API routes
-    app.get('*', (req, res) => {
+    // Express v5 requires {*path} instead of * for catch-all routes
+    app.get('{*path}', (req, res) => {
         if (!req.path.startsWith('/api/')) {
             res.sendFile(path.join(distPath, 'index.html'));
         }

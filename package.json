@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "nodemon --exec ts-node server/app.ts",
-    "start:prod": "node --experimental-strip-types server/app.ts"
+    "start:prod": "npx prisma migrate deploy && node --experimental-strip-types server/app.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

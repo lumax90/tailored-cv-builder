@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const API_URL = 'http://localhost:3000/api/auth';
+    const API_URL = import.meta.env.DEV ? 'http://localhost:3000/api/auth' : '/api/auth';
 
     useEffect(() => {
         checkAuth();

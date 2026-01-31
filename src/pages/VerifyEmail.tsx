@@ -18,7 +18,8 @@ const VerifyEmail: React.FC = () => {
 
         const verifyToken = async () => {
             try {
-                const res = await fetch(`http://localhost:3000/api/auth/verify-email/${token}`, {
+                const apiBase = import.meta.env.DEV ? 'http://localhost:3000/api' : '/api';
+                const res = await fetch(`${apiBase}/auth/verify-email/${token}`, {
                     credentials: 'include'
                 });
                 const data = await res.json();

@@ -58,7 +58,7 @@ const CVContext = createContext<CVContextType | undefined>(undefined);
 
 export const CVProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, isAuthenticated } = useAuth();
-    const API_URL = 'http://localhost:3000/api';
+    const API_URL = import.meta.env.DEV ? 'http://localhost:3000/api' : '/api';
 
     // State Declarations
     const [applications, setApplications] = useState<Application[]>([]);

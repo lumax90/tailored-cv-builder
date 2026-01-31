@@ -1,7 +1,7 @@
 import type { CVProfile, JobAnalysis, AnalysisOptions } from '../types';
 
 // API Configuration - All AI calls now go through the backend
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:3000/api' : '/api';
 
 /**
  * Analyze a job description and tailor the CV profile

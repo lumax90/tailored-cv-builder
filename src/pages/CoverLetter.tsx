@@ -36,7 +36,8 @@ const CoverLetter: React.FC = () => {
         setIsGenerating(true);
 
         try {
-            const response = await fetch('http://localhost:3000/api/cv/cover-letter', {
+            const apiBase = import.meta.env.DEV ? 'http://localhost:3000/api' : '/api';
+            const response = await fetch(`${apiBase}/cv/cover-letter`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

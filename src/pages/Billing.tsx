@@ -3,7 +3,7 @@ import { Check, Star, Zap, Crown, Loader2, ExternalLink, Sparkles } from 'lucide
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:3000/api' : '/api';
 
 interface PlanPricing {
     monthly: { price: string; variantId: string };

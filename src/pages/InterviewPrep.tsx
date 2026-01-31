@@ -35,7 +35,8 @@ const InterviewPrep: React.FC = () => {
         setIsGenerating(true);
 
         try {
-            const response = await fetch('http://localhost:3000/api/cv/interview-prep', {
+            const apiBase = import.meta.env.DEV ? 'http://localhost:3000/api' : '/api';
+            const response = await fetch(`${apiBase}/cv/interview-prep`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

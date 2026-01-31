@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SubscriptionTier {
+  FREE      // Legacy / No plan
+  STARTER   // $4.95 - 20 CVs
+  PRO       // $14.95 - 70 CVs
+  UNLIMITED // $39.95 - 1000 soft cap
+}
+
+enum ApplicationStatus {
+  APPLIED
+  INTERVIEWING
+  OFFER
+  REJECTED
+  ACCEPTED
+  ARCHIVED
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  passwordHash    String?          // Null for OAuth users
+  fullName        String?
+  
+  // Email Verification
+  emailVerified       Boolean      @default(false)
+  verificationToken   String?      @unique
+  verificationExpires DateTime?
+  
+  // OAuth Providers
+  googleId        String?          @unique
+  linkedinId      String?          @unique
+  authProvider    String           @default("email") // email, google, linkedin
+  
+  // Subscription
+  subscriptionTier SubscriptionTier @default(FREE)
+  usageCount      Int              @default(0) // Reset this monthly via cron job
+  lastResetDate   DateTime         @default(now())
+  
+  // Stripe Integration (Legacy)
+  stripeCustomerId     String?     @unique
+  stripeSubscriptionId String?
+  subscriptionEndDate  DateTime?
+
+  // LemonSqueezy Integration
+  lemonCustomerId      String?     @unique
+  lemonSubscriptionId  String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  applications    Application[]
+  masterProfile   MasterProfile?
+}
+
+model MasterProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Storing the complex profile object as JSONB
+  // This allows flexibility as our frontend CVProfile type evolves
+  data      Json
+  
+  updatedAt DateTime @updatedAt
+}
+
+model Application {
+  id                  String            @id @default(uuid())
+  userId              String
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  jobTitle            String
+  company             String
+  originalDescription String            @db.Text
+  
+  // Storing tailored result
+  tailoredResume      Json              // Stores the full layoutStrategy, content, etc.
+  matchScore          Int               @default(0)
+  
+  status              ApplicationStatus @default(APPLIED)
+  
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@index([userId])
+}

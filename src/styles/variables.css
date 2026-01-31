@@ -1,0 +1,69 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+:root {
+  /* Palette - Modern Editorial */
+  --color-bg: #F9F9F7;        /* Warm off-white, paper-like */
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F3F3F1;
+  
+  --color-text: #1F2223;      /* Soft charcoal rather than pure black */
+  --color-text-muted: #5F6368;
+  --color-text-light: #9CA3AF;
+  
+  --color-accent: #2C3E50;    /* Deep Navy/Slate */
+  --color-accent-hover: #1A252F;
+  --color-accent-subtle: #E2E8F0;
+  
+  --color-border: #E0E0E0;
+  --color-border-focused: #2C3E50;
+  
+  --color-error: #B91C1C;
+  --color-success: #15803D;
+
+  /* Typography */
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Inter', sans-serif;
+  
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  
+  /* Spacing */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  
+  /* Other */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+}
+
+body.dark {
+  --color-bg: #111;
+  --color-surface: #1E1E1E;
+  --color-text: #F3F4F6;
+  --color-text-muted: #9CA3AF;
+  --color-border: #333;
+  --color-accent: #E2E8F0;
+  --color-accent-hover: #FFFFFF;
+}

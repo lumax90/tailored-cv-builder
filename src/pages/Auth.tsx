@@ -17,6 +17,7 @@ const AuthPage: React.FC = () => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [turnstileToken, setTurnstileToken] = useState<string>('');
+    const [turnstileResetKey, setTurnstileResetKey] = useState(0);
     const [showVerificationMessage, setShowVerificationMessage] = useState(false);
 
     const handleTurnstileVerify = useCallback((token: string) => {
@@ -42,6 +43,8 @@ const AuthPage: React.FC = () => {
             }
         } catch (err: any) {
             setError(err.message || 'Authentication failed');
+            // Reset Turnstile to get fresh token
+            setTurnstileResetKey(k => k + 1);
         } finally {
             setIsLoading(false);
         }
@@ -340,7 +343,7 @@ const AuthPage: React.FC = () => {
                         )}
 
                         {/* Cloudflare Turnstile - Bot Protection */}
-                        <Turnstile onVerify={handleTurnstileVerify} />
+                        <Turnstile onVerify={handleTurnstileVerify} resetKey={turnstileResetKey} />
 
                         <button
                             type="submit"

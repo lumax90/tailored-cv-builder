@@ -23,6 +23,8 @@ const verifyTurnstile = async (token: string): Promise<boolean> => {
         return true; // Skip in dev
     }
 
+    console.log('🔐 Verifying Turnstile token:', token?.substring(0, 20) + '...');
+
     try {
         const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
             method: 'POST',
@@ -30,6 +32,13 @@ const verifyTurnstile = async (token: string): Promise<boolean> => {
             body: `secret=${TURNSTILE_SECRET}&response=${token}`
         });
         const data = await response.json();
+
+        console.log('📊 Turnstile response:', JSON.stringify(data, null, 2));
+
+        if (!data.success) {
+            console.error('❌ Turnstile verification failed:', data['error-codes']);
+        }
+
         return data.success === true;
     } catch (error) {
         console.error('Turnstile verification error:', error);

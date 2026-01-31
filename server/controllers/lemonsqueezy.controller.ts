@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma.ts';
 
 const LEMONSQUEEZY_API_KEY = process.env.LEMONSQUEEZY_API_KEY;
 const LEMONSQUEEZY_STORE_ID = process.env.LEMONSQUEEZY_STORE_ID;
+const LEMONSQUEEZY_STORE_SUBDOMAIN = process.env.LEMONSQUEEZY_STORE_SUBDOMAIN || 'tailoredairesume';
 const LEMONSQUEEZY_WEBHOOK_SECRET = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
 
 // Variant IDs - Replace with your actual LemonSqueezy Product Variant IDs
@@ -35,11 +36,16 @@ export const createCheckout = async (req: Request, res: Response) => {
 
         // Get the actual variant ID from env
         const actualVariantId = VARIANT_IDS[variantId];
+        console.log(`🍋 LemonSqueezy Checkout Request:`, { variantId, actualVariantId, tier, billingCycle });
+
         if (!actualVariantId) {
+            console.error('❌ Invalid variant - available:', Object.keys(VARIANT_IDS));
             return res.status(400).json({ error: 'Invalid plan selected' });
         }
 
-        // Create checkout via LemonSqueezy API
+        const successUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/billing?success=true&tier=${tier}`;
+
+        // Create checkout via LemonSqueezy API with minimal required fields
         const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
             method: 'POST',
             headers: {
@@ -51,22 +57,18 @@ export const createCheckout = async (req: Request, res: Response) => {
                 data: {
                     type: 'checkouts',
                     attributes: {
+                        custom_price: null,
+                        product_options: {
+                            enabled_variants: [parseInt(actualVariantId)],
+                            redirect_url: successUrl
+                        },
                         checkout_data: {
                             email: user.email,
-                            name: user.fullName || undefined,
                             custom: {
                                 user_id: userId,
                                 tier: tier,
                                 billing_cycle: billingCycle
                             }
-                        },
-                        checkout_options: {
-                            dark: false,
-                            success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/billing?success=true&tier=${tier}`,
-                            cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/billing?canceled=true`
-                        },
-                        product_options: {
-                            redirect_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/billing?success=true&tier=${tier}`
                         }
                     },
                     relationships: {
@@ -87,14 +89,15 @@ export const createCheckout = async (req: Request, res: Response) => {
             })
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            const error = await response.json();
-            console.error('LemonSqueezy Checkout Error:', error);
+            console.error('LemonSqueezy Checkout Error:', JSON.stringify(data, null, 2));
             throw new Error('Failed to create checkout session');
         }
 
-        const data = await response.json();
         const checkoutUrl = data.data.attributes.url;
+        console.log(`✅ Checkout URL created: ${checkoutUrl}`);
 
         res.json({ url: checkoutUrl });
 

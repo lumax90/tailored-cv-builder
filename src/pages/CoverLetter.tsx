@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useCV } from '../store/CVContext';
 import { FileText, Sparkles, Copy, Download, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from '../components/Toast';
@@ -14,6 +15,9 @@ const CoverLetter: React.FC = () => {
     const [showOptions, setShowOptions] = useState(false);
     const [companyName, setCompanyName] = useState('');
     const [jobTitle, setJobTitle] = useState('');
+
+    const location = useLocation();
+    const applicationId = location.state?.applicationId;
 
     // Pre-fill from current job analysis if available
     React.useEffect(() => {
@@ -44,7 +48,8 @@ const CoverLetter: React.FC = () => {
                 body: JSON.stringify({
                     profile,
                     jobDescription,
-                    options: { tone, companyName, jobTitle }
+                    options: { tone, companyName, jobTitle },
+                    applicationId
                 })
             });
 

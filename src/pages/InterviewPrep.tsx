@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useCV } from '../store/CVContext';
 import { MessageSquare, Sparkles, RefreshCw, ChevronDown, ChevronUp, Lightbulb, Target } from 'lucide-react';
 import { useToast } from '../components/Toast';
@@ -18,6 +19,9 @@ const InterviewPrep: React.FC = () => {
     const [jobDescription, setJobDescription] = useState('');
     const [questionType, setQuestionType] = useState<'all' | 'behavioral' | 'technical'>('all');
     const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null);
+
+    const location = useLocation();
+    const applicationId = location.state?.applicationId;
 
     // Pre-fill from current job analysis
     React.useEffect(() => {
@@ -43,7 +47,8 @@ const InterviewPrep: React.FC = () => {
                 body: JSON.stringify({
                     profile,
                     jobDescription,
-                    questionType
+                    questionType,
+                    applicationId
                 })
             });
 
@@ -53,8 +58,14 @@ const InterviewPrep: React.FC = () => {
             }
 
             const data = await response.json();
-            setQuestions(data.questions);
-            showToast('success', `Generated ${data.questions.length} interview questions!`);
+            if (Array.isArray(data.questions)) {
+                setQuestions(data.questions);
+                showToast('success', `Generated ${data.questions.length} interview questions!`);
+            } else {
+                console.error('Invalid questions format:', data);
+                setQuestions([]); // Fallback to empty
+                throw new Error('Received invalid data format from AI');
+            }
         } catch (error: any) {
             showToast('error', error.message || 'Failed to generate questions');
         } finally {

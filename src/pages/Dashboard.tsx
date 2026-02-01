@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCV } from '../store/CVContext';
-import { Briefcase, Calendar, FileText, Trash2, TrendingUp, Target, Award, BarChart3 } from 'lucide-react';
+import { Briefcase, Calendar, FileText, Trash2, TrendingUp, Target, Award, BarChart3, Mail, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { ApplicationStatus } from '../types';
 import { calculateATSScore, getATSScoreColor, getATSScoreLabel } from '../utils/atsScore';
@@ -53,6 +53,28 @@ const Dashboard: React.FC = () => {
             matchScore: app.matchScore
         });
         navigate('/preview');
+    };
+
+    const handleCoverLetter = (app: any) => {
+        features.setJobAnalysis({
+            originalDescription: app.jobDescription,
+            tailoredProfile: app.tailoredProfile,
+            suggestions: [],
+            layoutStrategy: app.tailoredProfile.layoutStrategy,
+            matchScore: app.matchScore
+        });
+        navigate('/cover-letter', { state: { applicationId: app.id } });
+    };
+
+    const handleInterviewPrep = (app: any) => {
+        features.setJobAnalysis({
+            originalDescription: app.jobDescription,
+            tailoredProfile: app.tailoredProfile,
+            suggestions: [],
+            layoutStrategy: app.tailoredProfile.layoutStrategy,
+            matchScore: app.matchScore
+        });
+        navigate('/interview-prep', { state: { applicationId: app.id } });
     };
 
     return (
@@ -236,6 +258,22 @@ const Dashboard: React.FC = () => {
                                     style={{ padding: '6px' }}
                                 >
                                     <FileText size={16} />
+                                </button>
+                                <button
+                                    className="btn btn-outline"
+                                    onClick={() => handleCoverLetter(app)}
+                                    title="Cover Letter"
+                                    style={{ padding: '6px' }}
+                                >
+                                    <Mail size={16} />
+                                </button>
+                                <button
+                                    className="btn btn-outline"
+                                    onClick={() => handleInterviewPrep(app)}
+                                    title="Interview Prep"
+                                    style={{ padding: '6px' }}
+                                >
+                                    <MessageSquare size={16} />
                                 </button>
                                 <button
                                     className="btn btn-outline"

@@ -244,10 +244,22 @@ export const deleteApplication = async (req: Request, res: Response) => {
  */
 export const generateCoverLetter = async (req: Request, res: Response) => {
     try {
-        const { profile, jobDescription, options } = req.body;
+        const { profile, jobDescription, options, applicationId } = req.body;
+        const userId = (req as any).user?.userId;
 
         if (!profile || !jobDescription) {
             return res.status(400).json({ error: 'Profile and job description are required' });
+        }
+
+        // Check if application already has a cover letter
+        if (applicationId && userId) {
+            const existingApp = await prisma.application.findFirst({
+                where: { id: applicationId, userId }
+            });
+
+            if (existingApp?.coverLetter) {
+                return res.json({ coverLetter: existingApp.coverLetter, fromCache: true });
+            }
         }
 
         if (!process.env.OPENAI_API_KEY) {
@@ -307,8 +319,15 @@ Return ONLY the cover letter text, no additional formatting or labels.`;
             throw new Error('No cover letter generated');
         }
 
+        // Save to application if ID provided
+        if (applicationId && userId) {
+            await prisma.application.updateMany({
+                where: { id: applicationId, userId },
+                data: { coverLetter }
+            });
+        }
+
         // Increment usage
-        const userId = (req as any).user?.userId;
         if (userId) {
             await prisma.user.update({
                 where: { id: userId },
@@ -330,7 +349,22 @@ Return ONLY the cover letter text, no additional formatting or labels.`;
  */
 export const generateInterviewPrep = async (req: Request, res: Response) => {
     try {
-        const { profile, jobDescription, questionType } = req.body;
+        const { profile, jobDescription, questionType, applicationId } = req.body;
+        const userId = (req as any).user?.userId;
+
+        // Check if application already has interview questions
+        if (applicationId && userId) {
+            const existingApp = await prisma.application.findFirst({
+                where: { id: applicationId, userId }
+            });
+
+            if (existingApp?.interviewQuestions) {
+                const cachedQuestions = existingApp.interviewQuestions as any[];
+                if (cachedQuestions && cachedQuestions.length > 0) {
+                    return res.json({ questions: cachedQuestions, fromCache: true });
+                }
+            }
+        }
 
         if (!jobDescription) {
             return res.status(400).json({ error: 'Job description is required' });
@@ -357,21 +391,24 @@ Recent Role: ${profile?.experience?.[0]?.role || 'Not specified'}
 
 Generate ${typeFilter} questions that interviewers would likely ask.
 
-Return a JSON array with this format:
-[
-  {
-    "question": "The interview question",
-    "type": "behavioral" | "technical" | "situational",
-    "tip": "A brief tip on how to answer this question well"
-  }
-]
+Return a JSON object with a "questions" key containing an array of objects.
+Example Format:
+{
+  "questions": [
+    {
+      "question": "The interview question",
+      "type": "behavioral",
+      "tip": "A brief tip on how to answer this question well"
+    }
+  ]
+}
 
 Focus on questions relevant to the specific job requirements.`;
 
         const completion = await openai.chat.completions.create({
             model: process.env.OPENAI_MODEL || 'gpt-4o',
             messages: [
-                { role: 'system', content: 'You are an expert career coach and interview preparation specialist. Return valid JSON only.' },
+                { role: 'system', content: 'You are an expert career coach and interview preparation specialist. You MUST return valid JSON.' },
                 { role: 'user', content: prompt }
             ],
             response_format: { type: 'json_object' },
@@ -379,17 +416,40 @@ Focus on questions relevant to the specific job requirements.`;
             max_tokens: 2000
         });
 
-        let questions;
+        let questions = [];
         try {
             const content = completion.choices[0]?.message?.content || '{}';
             const parsed = JSON.parse(content);
-            questions = parsed.questions || parsed;
-        } catch {
+
+            // Handle various likely response shapes
+            if (Array.isArray(parsed)) {
+                questions = parsed;
+            } else if (Array.isArray(parsed.questions)) {
+                questions = parsed.questions;
+            } else if (Array.isArray(parsed.data)) {
+                questions = parsed.data;
+            } else {
+                console.warn('Unexpected AI response format for interview prep:', parsed);
+                // Try to find any array in the object values
+                const firstArray = Object.values(parsed).find(val => Array.isArray(val));
+                if (firstArray) {
+                    questions = firstArray as any[];
+                }
+            }
+        } catch (e) {
+            console.error('Failed to parse AI response:', e);
             throw new Error('Failed to parse AI response');
         }
 
+        // Save to application if ID provided
+        if (applicationId && userId) {
+            await prisma.application.updateMany({
+                where: { id: applicationId, userId },
+                data: { interviewQuestions: questions as any }
+            });
+        }
+
         // Increment usage
-        const userId = (req as any).user?.userId;
         if (userId) {
             await prisma.user.update({
                 where: { id: userId },

@@ -4,7 +4,7 @@ import HarvardTemplate from '../components/HarvardTemplate';
 import { ModernTemplate, CreativeTemplate, MinimalTemplate } from '../components/templates';
 import Modal from '../components/Modal';
 import { Printer, AlertCircle, FileText, ChevronDown, AlignVerticalSpaceAround, Split, RefreshCw, Wand2 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+// import { useAuth } from '../context/AuthContext'; // Removed unused import
 
 type TemplateStyle = 'harvard' | 'modern' | 'creative' | 'minimal';
 

@@ -35,13 +35,14 @@ Your response MUST be valid JSON with this exact structure:
 }
 
 IMPORTANT RULES:
-1. NEVER fabricate experience or skills the candidate doesn't have
+1. NEVER fabricate experience or skills the candidate doesn't have but you can do soft and very related minimal changes-updates on skills etc. 
 2. Reword existing experience to match job description keywords when truthful
 3. Prioritize sections and experiences most relevant to the job
 4. In "creative" mode, you can infer transferable skills; in "strict" mode, stick to facts
 5. The summary should be tailored to this specific role
 6. Match score should reflect how well the candidate fits the role (0-100)
-7. Suggestions should be actionable advice for the candidate`;
+7. Suggestions should be actionable advice for the candidate
+8. LANGUAGE RULE: Detect the language of the Job Description (e.g., English, Turkish, German) and write the ENTIRE tailored profile (summary, descriptions, skills, etc.) in that SAME language.`;
 
 export async function analyzeAndTailor(
     profile: CVProfile,
@@ -69,7 +70,9 @@ ${JSON.stringify(profile, null, 2)}
 === JOB DESCRIPTION ===
 ${jobDescription}
 
-Analyze the job description, identify key requirements, and tailor the candidate's profile to maximize their chances. Return ONLY valid JSON.`;
+Analyze the job description, identify key requirements, and tailor the candidate's profile to maximize their chances.
+CRITICAL: Detect the language of the Job Description above and ensure your output (Tailored Profile) is written ENTIRELY in that same language.
+Return ONLY valid JSON.`;
 
     try {
         const completion = await openai.chat.completions.create({

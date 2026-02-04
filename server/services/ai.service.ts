@@ -42,7 +42,9 @@ IMPORTANT RULES:
 5. The summary should be tailored to this specific role
 6. Match score should reflect how well the candidate fits the role (0-100)
 7. Suggestions should be actionable advice for the candidate
-8. LANGUAGE RULE: Detect the language of the Job Description (e.g., English, Turkish, German) and write the ENTIRE tailored profile (summary, descriptions, skills, etc.) in that SAME language.`;
+8. LANGUAGE RULE: Detect the language of the Job Description and write the ENTIRE tailored profile in that language.
+9. PERSONAL DATA: Preserving the candidate's Name, Email, Phone, and other personal details is MANDATORY. Do not translate or anonymize them.
+10. CONTENT DEPTH: While tailoring, maintain the depth and detail of the original experience. Do not over-summarize or shorten the CV unnecessarily. It should be a full, professional CV.`;
 
 export async function analyzeAndTailor(
     profile: CVProfile,
@@ -71,7 +73,8 @@ ${JSON.stringify(profile, null, 2)}
 ${jobDescription}
 
 Analyze the job description, identify key requirements, and tailor the candidate's profile to maximize their chances.
-CRITICAL: Detect the language of the Job Description above and ensure your output (Tailored Profile) is written ENTIRELY in that same language.
+CRITICAL: Detect the language of the Job Description and write the output in that language.
+CRITICAL: PRESERVE candidate's Name and Contact Info exactly as they appear in the input profile.
 Return ONLY valid JSON.`;
 
     try {

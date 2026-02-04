@@ -2,7 +2,9 @@ import React, { useRef, useState } from 'react';
 import { useCV } from '../store/CVContext';
 import HarvardTemplate from '../components/HarvardTemplate';
 import { ModernTemplate, CreativeTemplate, MinimalTemplate } from '../components/templates';
-import { Printer, AlertCircle, FileText, ChevronDown, AlignVerticalSpaceAround, Split } from 'lucide-react';
+import Modal from '../components/Modal';
+import { Printer, AlertCircle, FileText, ChevronDown, AlignVerticalSpaceAround, Split, RefreshCw, Wand2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 type TemplateStyle = 'harvard' | 'modern' | 'creative' | 'minimal';
 
@@ -15,6 +17,7 @@ const templateOptions: { id: TemplateStyle; name: string; description: string }[
 
 const Preview: React.FC = () => {
     const { profile, features } = useCV();
+    // const { user } = useAuth(); // Not needed if cookie handles auth
     const templateRef = useRef<HTMLDivElement>(null);
     const [activeTemplate, setActiveTemplate] = useState<TemplateStyle>('harvard');
     const [showTemplateSelector, setShowTemplateSelector] = useState(false);
@@ -23,12 +26,65 @@ const Preview: React.FC = () => {
     const [verticalFill, setVerticalFill] = useState(false);
     const [smartPagination, setSmartPagination] = useState(true);
 
+    // Regeneration State
+    const [showRegenerateModal, setShowRegenerateModal] = useState(false);
+    const [customInstructions, setCustomInstructions] = useState('');
+    const [isRegenerating, setIsRegenerating] = useState(false);
+
     // Use tailored profile if available, otherwise master profile
     const dataToRender = features.currentJobAnalysis?.tailoredProfile || profile;
     const isTailored = !!features.currentJobAnalysis;
 
     const handlePrint = () => {
         window.print();
+    };
+
+    const handleRegenerate = async () => {
+        if (!features.currentJobAnalysis?.originalDescription) {
+            alert("No job description found to regenerate from.");
+            return;
+        }
+
+        setIsRegenerating(true);
+        try {
+            const API_URL = import.meta.env.DEV ? 'http://localhost:3000/api' : '/api';
+
+            // We use the MASTER profile as base, but tailored logic uses it anyway
+            const response = await fetch(`${API_URL}/cv/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    profile: profile, // Always regenerate from master profile to avoid degradation
+                    jobDescription: features.currentJobAnalysis.originalDescription,
+                    options: {
+                        mode: 'creative', // Defaulting to creative as per previous flow, or could make selectable
+                        customInstructions: customInstructions
+                    }
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Regeneration failed');
+            }
+
+            const result = await response.json();
+
+            // Update Context
+            features.setJobAnalysis(result);
+
+            // Close Modal & Reset
+            setShowRegenerateModal(false);
+            setCustomInstructions('');
+
+        } catch (error) {
+            console.error("Regeneration error:", error);
+            alert("Failed to regenerate resume. Please try again.");
+        } finally {
+            setIsRegenerating(false);
+        }
     };
 
     const renderTemplate = () => {
@@ -90,6 +146,19 @@ const Preview: React.FC = () => {
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     {/* Layout Controls */}
                     <div style={{ display: 'flex', gap: '6px', marginRight: '8px' }}>
+                        {/* Regenerate Button (Only if tailored) */}
+                        {isTailored && (
+                            <button
+                                className="btn btn-outline"
+                                onClick={() => setShowRegenerateModal(true)}
+                                title="Regenerate with AI"
+                                style={{ height: '36px', padding: '0 10px', marginRight: '8px', borderColor: '#8B5CF6', color: '#7C3AED' }}
+                            >
+                                <RefreshCw size={16} />
+                                <span style={{ fontSize: '0.8rem', marginLeft: '6px' }}>Regenerate</span>
+                            </button>
+                        )}
+
                         <button
                             className={`btn btn-sm ${verticalFill ? 'btn-primary' : 'btn-outline'}`}
                             onClick={() => setVerticalFill(!verticalFill)}
@@ -244,6 +313,86 @@ const Preview: React.FC = () => {
                     {renderTemplate()}
                 </div>
             </div>
+
+            {/* Regeneration Modal */}
+            <Modal
+                isOpen={showRegenerateModal}
+                onClose={() => setShowRegenerateModal(false)}
+                title="Regenerate Resume"
+                width="600px"
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{
+                        padding: '16px',
+                        background: '#F0F9FF',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        gap: '12px',
+                        alignItems: 'flex-start',
+                        color: '#0369A1',
+                        fontSize: '0.9rem'
+                    }}>
+                        <Wand2 size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
+                        <div>
+                            <strong>Refine your Resume with AI</strong>
+                            <p style={{ margin: '4px 0 0', opacity: 0.9 }}>
+                                Add specific instructions to guide the AI. For example: "Emphasize my leadership skills", "Make the summary more concise", or "Focus on React experience".
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="form-label" style={{ marginBottom: '8px', display: 'block' }}>
+                            Custom Instructions (Optional)
+                        </label>
+                        <textarea
+                            className="form-input"
+                            rows={4}
+                            placeholder="e.g. Please highlight my project management experience..."
+                            value={customInstructions}
+                            onChange={(e) => setCustomInstructions(e.target.value)}
+                            style={{
+                                width: '100%',
+                                minHeight: '100px',
+                                padding: '12px',
+                                fontSize: '0.95rem'
+                            }}
+                        />
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
+                        <button
+                            className="btn btn-outline"
+                            onClick={() => setShowRegenerateModal(false)}
+                            disabled={isRegenerating}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleRegenerate}
+                            disabled={isRegenerating}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                minWidth: '140px',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            {isRegenerating ? (
+                                <>
+                                    <div className="spinner-small" /> Generating...
+                                </>
+                            ) : (
+                                <>
+                                    <Wand2 size={18} /> Regenerate
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };

@@ -5,9 +5,11 @@ import type { CVProfile, LayoutStrategy } from '../types';
 interface Props {
     data: CVProfile;
     layoutStrategy?: LayoutStrategy;
+    verticalFill?: boolean;
+    smartPagination?: boolean;
 }
 
-const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrategy }, ref) => {
+const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrategy, verticalFill, smartPagination }, ref) => {
     // Defensive destructuring: AI might return partial objects, so we default arrays to []
     const {
         personal = { fullName: '', title: '', email: '', phone: '', location: '', linkedin: '', website: '', github: '', medium: '', summary: '' },
@@ -250,14 +252,29 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
         
         @media print {
           .harvard-cv {
-            padding: 0;
+            padding: 0.5in !important;
             box-shadow: none;
-            width: 100%;
+            width: 8.5in;
+            margin: 0;
+            -webkit-box-decoration-break: clone;
+            box-decoration-break: clone;
+            ${verticalFill ? `
+            height: 11in !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            ` : ''}
           }
           @page {
-            margin: 0.5in;
+            margin: 0;
             size: letter;
           }
+           /* Smart Pagination Logic */
+          ${smartPagination ? `
+            .cv-section { break-inside: avoid; page-break-inside: avoid; }
+            .cv-item { break-inside: avoid; page-break-inside: avoid; }
+            h2, h3 { break-after: avoid; page-break-after: avoid; }
+          ` : ''}
         }
       `}</style>
         </div>

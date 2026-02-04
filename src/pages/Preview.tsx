@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useCV } from '../store/CVContext';
 import HarvardTemplate from '../components/HarvardTemplate';
 import { ModernTemplate, CreativeTemplate, MinimalTemplate } from '../components/templates';
-import { Printer, AlertCircle, FileText, ChevronDown } from 'lucide-react';
+import { Printer, AlertCircle, FileText, ChevronDown, AlignVerticalSpaceAround, Split } from 'lucide-react';
 
 type TemplateStyle = 'harvard' | 'modern' | 'creative' | 'minimal';
 
@@ -19,6 +19,10 @@ const Preview: React.FC = () => {
     const [activeTemplate, setActiveTemplate] = useState<TemplateStyle>('harvard');
     const [showTemplateSelector, setShowTemplateSelector] = useState(false);
 
+    // Output Options
+    const [verticalFill, setVerticalFill] = useState(false);
+    const [smartPagination, setSmartPagination] = useState(true);
+
     // Use tailored profile if available, otherwise master profile
     const dataToRender = features.currentJobAnalysis?.tailoredProfile || profile;
     const isTailored = !!features.currentJobAnalysis;
@@ -31,7 +35,9 @@ const Preview: React.FC = () => {
         const props = {
             data: dataToRender,
             layoutStrategy: features.currentJobAnalysis?.layoutStrategy,
-            ref: templateRef
+            ref: templateRef,
+            verticalFill,
+            smartPagination
         };
 
         switch (activeTemplate) {
@@ -82,6 +88,28 @@ const Preview: React.FC = () => {
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    {/* Layout Controls */}
+                    <div style={{ display: 'flex', gap: '6px', marginRight: '8px' }}>
+                        <button
+                            className={`btn btn-sm ${verticalFill ? 'btn-primary' : 'btn-outline'}`}
+                            onClick={() => setVerticalFill(!verticalFill)}
+                            title="Vertical Fill: Distribute content to fill empty space"
+                            style={{ height: '36px', padding: '0 10px' }}
+                        >
+                            <AlignVerticalSpaceAround size={16} />
+                            <span style={{ fontSize: '0.8rem', marginLeft: '6px' }}>Fit Page</span>
+                        </button>
+                        <button
+                            className={`btn btn-sm ${smartPagination ? 'btn-primary' : 'btn-outline'}`}
+                            onClick={() => setSmartPagination(!smartPagination)}
+                            title="Smart Pagination: Improve breaks between pages"
+                            style={{ height: '36px', padding: '0 10px' }}
+                        >
+                            <Split size={16} />
+                            <span style={{ fontSize: '0.8rem', marginLeft: '6px' }}>Smart Break</span>
+                        </button>
+                    </div>
+
                     {/* Template Selector Dropdown */}
                     <div style={{ position: 'relative' }}>
                         <button
@@ -201,14 +229,14 @@ const Preview: React.FC = () => {
             </div>
 
             {/* The Resume Preview */}
-            <div style={{
+            <div className="print-preview-container" style={{
                 overflowX: 'auto',
                 paddingBottom: '2rem',
                 background: '#F1F5F9',
                 padding: '24px',
                 borderRadius: 'var(--radius-lg)'
             }}>
-                <div style={{
+                <div className="print-preview-wrapper" style={{
                     boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                     margin: '0 auto',
                     width: 'fit-content'

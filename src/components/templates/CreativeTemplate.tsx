@@ -4,16 +4,12 @@ import type { CVProfile, LayoutStrategy } from '../../types';
 interface Props {
     data: CVProfile;
     layoutStrategy?: LayoutStrategy;
+    verticalFill?: boolean;
+    smartPagination?: boolean;
 }
 
-/**
- * Creative CV Template
- * - Bold, colorful design for creative roles
- * - Large header with gradient
- * - Card-based sections
- * - Unique typography
- */
-const CreativeTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
+const CreativeTemplate = forwardRef<HTMLDivElement, Props>(({ data, verticalFill, smartPagination }, ref) => {
+    // ... destructuring ...
     const {
         personal = { fullName: '', title: '', email: '', phone: '', location: '', linkedin: '', website: '', github: '', summary: '' },
         experience = [],
@@ -39,10 +35,25 @@ const CreativeTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                         width: 8.5in; 
                         margin: 0; 
                         box-shadow: none !important; 
+                        ${verticalFill ? `
+                        height: 11in !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        justify-content: space-between !important;
+                        ` : ''}
                     }
                     .creative-cv * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    /* Smart Pagination */
+                    ${smartPagination ? `
+                        h2, h3 { break-after: avoid; page-break-after: avoid; }
+                        /* Select only direct children cards of the main content area if possible, or use a specific class */
+                        .section-card { break-inside: avoid; page-break-inside: avoid; }
+                    ` : ''}
                 }
                 @page { margin: 0; size: letter; }
+                @media print {
+                    html, body { height: auto; }
+                }
             `}</style>
 
             {/* Bold Header */}
@@ -122,7 +133,16 @@ const CreativeTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
             </div>
 
             {/* Main Content */}
-            <div style={{ padding: '24px 32px' }}>
+            <div className="main-content" style={{ padding: '24px 32px' }}>
+                <style>{`
+                    @media print {
+                        .main-content {
+                            -webkit-box-decoration-break: clone;
+                            box-decoration-break: clone;
+                            padding: 24px 32px !important;
+                        }
+                    }
+                `}</style>
                 {/* Summary */}
                 {personal.summary && (
                     <div style={{
@@ -188,7 +208,7 @@ const CreativeTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                         </h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {experience.map((exp, idx) => (
-                                <div key={exp.id || idx} style={{
+                                <div key={exp.id || idx} className="section-card" style={{
                                     padding: '16px',
                                     background: '#F9FAFB',
                                     borderRadius: '12px',
@@ -241,7 +261,7 @@ const CreativeTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                                 <span>🎓</span> Education
                             </h2>
                             {education.map((edu, idx) => (
-                                <div key={edu.id || idx} style={{ marginBottom: '12px' }}>
+                                <div key={edu.id || idx} className="section-card" style={{ marginBottom: '12px' }}>
                                     <h3 style={{ fontSize: '11pt', fontWeight: 600 }}>{edu.degree}</h3>
                                     <p style={{ fontSize: '9pt', color: '#6B7280' }}>{edu.institution}</p>
                                     <p style={{ fontSize: '8pt', color: '#9CA3AF' }}>
@@ -267,7 +287,7 @@ const CreativeTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                                 <span>🚀</span> Projects
                             </h2>
                             {projects.slice(0, 3).map((project, idx) => (
-                                <div key={project.id || idx} style={{ marginBottom: '12px' }}>
+                                <div key={project.id || idx} className="section-card" style={{ marginBottom: '12px' }}>
                                     <h3 style={{ fontSize: '11pt', fontWeight: 600 }}>{project.name}</h3>
                                     {project.description && (
                                         <p style={{ fontSize: '9pt', color: '#6B7280' }}>{project.description}</p>

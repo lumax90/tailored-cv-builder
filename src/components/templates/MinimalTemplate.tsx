@@ -4,16 +4,15 @@ import type { CVProfile, LayoutStrategy } from '../../types';
 interface Props {
     data: CVProfile;
     layoutStrategy?: LayoutStrategy;
+    verticalFill?: boolean;
+    smartPagination?: boolean;
 }
 
 /**
  * Minimal CV Template
- * - Ultra-clean, whitespace-focused design
- * - Single column layout
- * - Subtle typography hierarchy
- * - Perfect for senior/executive roles
  */
-const MinimalTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
+const MinimalTemplate = forwardRef<HTMLDivElement, Props>(({ data, verticalFill, smartPagination }, ref) => {
+    // ... destructuring ...
     const {
         personal = { fullName: '', title: '', email: '', phone: '', location: '', linkedin: '', website: '', github: '', summary: '' },
         experience = [],
@@ -40,12 +39,25 @@ const MinimalTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                 @media print {
                     .minimal-cv { 
                         width: 8.5in; 
-                        padding: 0.75in;
+                        padding: 0.75in !important;
                         margin: 0; 
+                        -webkit-box-decoration-break: clone;
+                        box-decoration-break: clone;
+                        ${verticalFill ? `
+                        height: 11in !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        justify-content: space-between !important;
+                        ` : ''}
                     }
                     .minimal-cv * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    /* Smart Pagination */
+                    ${smartPagination ? `
+                        .minimal-item { break-inside: avoid; page-break-inside: avoid; }
+                        h2, h3 { break-after: avoid; page-break-after: avoid; }
+                    ` : ''}
                 }
-                @page { margin: 0.5in; size: letter; }
+                @page { margin: 0; size: letter; }
             `}</style>
 
             {/* Header - Centered */}
@@ -124,7 +136,7 @@ const MinimalTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                         Experience
                     </h2>
                     {experience.map((exp, idx) => (
-                        <div key={exp.id || idx} style={{ marginBottom: '20px' }}>
+                        <div key={exp.id || idx} className="minimal-item" style={{ marginBottom: '20px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
                                 <h3 style={{ fontSize: '11pt', fontWeight: 600 }}>
                                     {exp.role}
@@ -167,7 +179,7 @@ const MinimalTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                         Education
                     </h2>
                     {education.map((edu, idx) => (
-                        <div key={edu.id || idx} style={{ marginBottom: '14px', textAlign: 'center' }}>
+                        <div key={edu.id || idx} className="minimal-item" style={{ marginBottom: '14px', textAlign: 'center' }}>
                             <h3 style={{ fontSize: '11pt', fontWeight: 600 }}>
                                 {edu.degree}
                             </h3>
@@ -215,7 +227,7 @@ const MinimalTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                         Notable Projects
                     </h2>
                     {projects.slice(0, 3).map((project, idx) => (
-                        <div key={project.id || idx} style={{ marginBottom: '14px', textAlign: 'center' }}>
+                        <div key={project.id || idx} className="minimal-item" style={{ marginBottom: '14px', textAlign: 'center' }}>
                             <h3 style={{ fontSize: '11pt', fontWeight: 600 }}>{project.name}</h3>
                             {project.description && (
                                 <p style={{ fontSize: '10pt', color: '#666', fontStyle: 'italic' }}>

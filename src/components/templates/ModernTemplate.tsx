@@ -4,6 +4,8 @@ import type { CVProfile, LayoutStrategy } from '../../types';
 interface Props {
     data: CVProfile;
     layoutStrategy?: LayoutStrategy;
+    verticalFill?: boolean;
+    smartPagination?: boolean;
 }
 
 /**
@@ -13,7 +15,7 @@ interface Props {
  * - Main content area with experience and education
  * - Accent color for visual interest
  */
-const ModernTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
+const ModernTemplate = forwardRef<HTMLDivElement, Props>(({ data, verticalFill, smartPagination }, ref) => {
     const {
         personal = { fullName: '', title: '', email: '', phone: '', location: '', linkedin: '', website: '', github: '', summary: '' },
         experience = [],
@@ -41,22 +43,43 @@ const ModernTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                     .modern-cv { 
                         width: 8.5in; 
                         margin: 0; 
-                        box-shadow: none !important; 
+                        box-shadow: none !important;
+                        padding: 0 !important; 
+                        height: ${verticalFill ? '11in' : 'auto'} !important;
                     }
                     .modern-cv * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    /* Smart Pagination Logic */
+                    ${smartPagination ? `
+                        .cv-section-item { break-inside: avoid; page-break-inside: avoid; }
+                        h2, h3 { break-after: avoid; page-break-after: avoid; }
+                    ` : ''}
                 }
                 @page { 
-                    margin: 0.5in; 
+                    margin: 0; 
                     size: letter;
+                }
+                @media print {
+                   .modern-cv-grid { min-height: ${verticalFill ? '11in' : '0'} !important; }
+                   .main-content-column {
+                       display: flex; 
+                       flex-direction: column; 
+                       ${verticalFill ? 'justify-content: space-between;' : ''}
+                       padding: 24px 32px;
+                       -webkit-box-decoration-break: clone;
+                       box-decoration-break: clone;
+                   }
                 }
             `}</style>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', minHeight: '11in' }}>
+            <div className="modern-cv-grid" style={{ display: 'grid', gridTemplateColumns: '240px 1fr', minHeight: '11in' }}>
                 {/* Sidebar */}
                 <div style={{
                     background: '#F3F4F6',
                     padding: '24px',
-                    borderRight: `3px solid ${accentColor}`
+                    borderRight: `3px solid ${accentColor}`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    ...(verticalFill ? { justifyContent: 'space-between' } : {})
                 }}>
                     {/* Name & Title */}
                     <div style={{ marginBottom: '24px' }}>
@@ -176,7 +199,7 @@ const ModernTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                 </div>
 
                 {/* Main Content */}
-                <div style={{ padding: '24px 32px' }}>
+                <div className="main-content-column" style={{ padding: '24px 32px' }}>
                     {/* Summary */}
                     {personal.summary && (
                         <div style={{ marginBottom: '24px' }}>
@@ -206,7 +229,7 @@ const ModernTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                                 Experience
                             </h2>
                             {experience.map((exp, idx) => (
-                                <div key={exp.id || idx} style={{ marginBottom: '16px' }}>
+                                <div key={exp.id || idx} className="cv-section-item" style={{ marginBottom: '16px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                         <div>
                                             <h3 style={{ fontSize: '11pt', fontWeight: 600, color: '#111827' }}>
@@ -259,7 +282,7 @@ const ModernTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                                 Education
                             </h2>
                             {education.map((edu, idx) => (
-                                <div key={edu.id || idx} style={{ marginBottom: '12px' }}>
+                                <div key={edu.id || idx} className="cv-section-item" style={{ marginBottom: '12px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                         <div>
                                             <h3 style={{ fontSize: '11pt', fontWeight: 600, color: '#111827' }}>
@@ -295,7 +318,7 @@ const ModernTemplate = forwardRef<HTMLDivElement, Props>(({ data }, ref) => {
                                 Projects
                             </h2>
                             {projects.slice(0, 3).map((project, idx) => (
-                                <div key={project.id || idx} style={{ marginBottom: '12px' }}>
+                                <div key={project.id || idx} className="cv-section-item" style={{ marginBottom: '12px' }}>
                                     <h3 style={{ fontSize: '10pt', fontWeight: 600, color: '#111827' }}>
                                         {project.name}
                                     </h3>

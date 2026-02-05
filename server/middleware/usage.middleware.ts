@@ -28,9 +28,30 @@ export const checkUsageLimit = async (req: Request, res: Response, next: NextFun
             return res.status(404).json({ error: 'User not found' });
         }
 
+        // Check if usage should be reset (monthly reset based on lastResetDate)
+        const now = new Date();
+        const lastReset = new Date(user.lastResetDate);
+        const shouldReset = 
+            now.getMonth() !== lastReset.getMonth() || 
+            now.getFullYear() !== lastReset.getFullYear();
+
+        let currentUsage = user.usageCount;
+
+        if (shouldReset) {
+            // Reset usage for the new month
+            await prisma.user.update({
+                where: { id: userId },
+                data: { 
+                    usageCount: 0, 
+                    lastResetDate: now 
+                }
+            });
+            currentUsage = 0;
+        }
+
         const limit = TIER_LIMITS[user.subscriptionTier];
 
-        if (user.usageCount >= limit) {
+        if (currentUsage >= limit) {
             return res.status(403).json({
                 error: 'Monthly usage limit reached',
                 tier: user.subscriptionTier,

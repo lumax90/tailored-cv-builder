@@ -76,6 +76,16 @@ export interface Language {
   proficiency: 'Native' | 'Fluent' | 'Proficient' | 'Intermediate' | 'Basic';
 }
 
+export interface Reference {
+  id: string;
+  name: string;
+  title: string;
+  company: string;
+  email: string;
+  phone: string;
+  relationship: string; // e.g., "Former Manager", "Colleague", "Client"
+}
+
 export interface PersonalDetails {
   fullName: string;
   title: string; // Target Job Title
@@ -100,6 +110,7 @@ export interface CVProfile {
   volunteer: Volunteer[];
   awards: Award[];
   publications: Publication[];
+  references: Reference[];
 }
 
 export interface JobDescription {
@@ -120,6 +131,8 @@ export interface JobAnalysis {
   suggestions: string[];
   layoutStrategy?: LayoutStrategy; // Optional for backward compatibility
   matchScore?: number;
+  jobTitle?: string; // Extracted from job description by AI
+  companyName?: string; // Extracted from job description by AI
 }
 
 export type AIModel = 'openai' | 'gemini' | 'grok';

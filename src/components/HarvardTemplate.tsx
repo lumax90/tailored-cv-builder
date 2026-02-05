@@ -21,7 +21,8 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
         certifications = [],
         volunteer = [],
         awards = [],
-        publications = []
+        publications = [],
+        references = []
     } = data || {};
 
     return (
@@ -34,7 +35,7 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                     {personal.location && <span>{personal.location}</span>}
                     {personal.phone && <span> • {personal.phone}</span>}
                     {personal.email && <span> • {personal.email}</span>}
-                    {personal.linkedin && <span> • <a href={personal.linkedin} target="_blank" rel="noreferrer">LinkedIn</a></span>}
+                    {personal.linkedin && <span> • {personal.linkedin}</span>}
                     {personal.website && <span> • <a href={personal.website} target="_blank" rel="noreferrer">Portfolio</a></span>}
                     {personal.github && <span> • <a href={personal.github} target="_blank" rel="noreferrer">GitHub</a></span>}
                 </div>
@@ -205,6 +206,24 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                                     <div className="cv-description">{vol.description}</div>
                                 </div>
                             ))}
+                        </section>
+                    );
+                }
+
+                if (sectionIdLower === 'references' && references.length > 0) {
+                    return (
+                        <section key="references" className="cv-section">
+                            <h2 className="cv-header">References</h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+                                {references.map(ref => (
+                                    <div key={ref.id} className="cv-item" style={{ marginBottom: '0.25rem' }}>
+                                        <div><strong>{ref.name}</strong></div>
+                                        <div style={{ fontSize: '10pt' }}>{ref.title}{ref.company && `, ${ref.company}`}</div>
+                                        {ref.relationship && <div style={{ fontSize: '10pt', fontStyle: 'italic' }}>{ref.relationship}</div>}
+                                        <div style={{ fontSize: '10pt' }}>{ref.email}{ref.phone && ` • ${ref.phone}`}</div>
+                                    </div>
+                                ))}
+                            </div>
                         </section>
                     );
                 }

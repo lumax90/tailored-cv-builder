@@ -102,7 +102,8 @@ export function calculateATSScore(profile: CVProfile, jobDescription?: string): 
 
         const uniqueJobWords = [...new Set(jobWords)];
         const matchedWords = uniqueJobWords.filter(word => profileContent.includes(word));
-        const matchRatio = matchedWords.length / Math.min(uniqueJobWords.length, 50);
+        const denominator = Math.min(uniqueJobWords.length, 50);
+        const matchRatio = denominator > 0 ? matchedWords.length / denominator : 0;
 
         keywords = Math.min(Math.round(matchRatio * 20), 20);
 

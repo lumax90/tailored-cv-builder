@@ -47,7 +47,8 @@ const initialProfile: CVProfile = {
     certifications: [],
     volunteer: [],
     awards: [],
-    publications: []
+    publications: [],
+    references: []
 };
 
 const initialSettings: AppSettings = {
@@ -180,9 +181,21 @@ export const CVProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         }
     };
 
-    const resetProfile = () => {
+    const resetProfile = async () => {
         setProfile(initialProfile);
-        // Clear DB?
+        // Clear profile in database
+        if (isAuthenticated) {
+            try {
+                await fetch(`${API_URL}/profile`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ profile: initialProfile })
+                });
+            } catch (error) {
+                console.error('Failed to reset profile in database', error);
+            }
+        }
     };
 
     const updateSettings = (newSettings: Partial<AppSettings>) => {
@@ -231,10 +244,33 @@ export const CVProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     };
 
     const updateApplicationStatus = async (id: string, status: ApplicationStatus) => {
+        // Optimistic update
         setApplications(prev => prev.map(app =>
             app.id === id ? { ...app, status, lastUpdated: new Date().toISOString() } : app
         ));
-        // TODO: Implement PATCH endpoint for status
+        
+        try {
+            const response = await fetch(`${API_URL}/cv/applications/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ status })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to update status');
+            }
+        } catch (error) {
+            console.error('Failed to update application status', error);
+            // Revert on failure - refetch applications from server
+            try {
+                const appRes = await fetch(`${API_URL}/cv/applications`, { credentials: 'include' });
+                const appData = await appRes.json();
+                if (appData.applications) setApplications(appData.applications);
+            } catch (refetchError) {
+                console.error('Failed to refetch applications', refetchError);
+            }
+        }
     };
 
     const deleteApplication = async (id: string) => {

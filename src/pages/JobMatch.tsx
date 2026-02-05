@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useCV } from '../store/CVContext';
 import { Sparkles, ArrowRight, CheckCircle, Save, ChevronDown, ChevronUp, Settings2, FileText } from 'lucide-react';
 import { analyzeJobMatch } from '../services/ai';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import type { AnalysisMode } from '../types';
 import AnalysisProgressModal from '../components/AnalysisProgressModal';
 
@@ -34,6 +34,9 @@ const JobMatch: React.FC = () => {
     const [jobTitle, setJobTitle] = useState('');
     const [companyName, setCompanyName] = useState('');
 
+    // Ref for scrolling to results
+    const resultsRef = useRef<HTMLDivElement>(null);
+
     const handleAnalyze = async () => {
         if (!jobDescription.trim()) {
             setError("Please paste a job description.");
@@ -48,6 +51,9 @@ const JobMatch: React.FC = () => {
 
         setIsAnalyzing(true);
         setError(null);
+        
+        // Clear previous results before starting new analysis
+        setJobAnalysis(null);
 
         try {
             const result = await analyzeJobMatch(profile, jobDescription, {
@@ -55,7 +61,17 @@ const JobMatch: React.FC = () => {
                 customInstructions,
                 templateStyle
             });
+            
             setJobAnalysis(result);
+            
+            // Use AI-extracted job title and company name
+            if (result.jobTitle) setJobTitle(result.jobTitle);
+            if (result.companyName) setCompanyName(result.companyName);
+            
+            // Scroll to results after a short delay
+            setTimeout(() => {
+                resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
         } catch (err: any) {
             setError(err.message || "An error occurred during analysis.");
         } finally {
@@ -228,7 +244,7 @@ const JobMatch: React.FC = () => {
 
                 {/* Results Section - Only show if we have results */}
                 {features.currentJobAnalysis && (
-                    <section className="card" style={{ border: '1px solid var(--color-accent)', background: '#F8FAFC' }}>
+                    <section ref={resultsRef} className="card animate-fade-in" style={{ border: '2px solid var(--color-primary)', background: '#F8FAFC', scrollMarginTop: '20px' }}>
                         <h3 style={{ fontSize: '1.25rem', marginBottom: 'var(--spacing-4)', fontFamily: 'var(--font-serif)', color: 'var(--color-accent)' }}>
                             Analysis Results
                         </h3>
@@ -290,9 +306,9 @@ const JobMatch: React.FC = () => {
                             >
                                 <Save size={18} /> Save Application
                             </button>
-                            <a href="/preview" className="btn btn-outline" style={{ flex: 1, textDecoration: 'none' }}>
+                            <Link to="/preview" className="btn btn-outline" style={{ flex: 1, textDecoration: 'none' }}>
                                 Preview & Download <ArrowRight size={16} />
-                            </a>
+                            </Link>
                         </div>
                     </section>
                 )}

@@ -51,7 +51,9 @@ export const analyzeJobMatch = async (
         tailoredProfile: data.tailoredProfile,
         suggestions: data.suggestions || [],
         layoutStrategy: data.layoutStrategy,
-        matchScore: data.matchScore
+        matchScore: data.matchScore,
+        jobTitle: data.jobTitle,
+        companyName: data.companyName
     };
 };
 

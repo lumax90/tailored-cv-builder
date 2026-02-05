@@ -95,7 +95,7 @@ const MinimalTemplate = forwardRef<HTMLDivElement, Props>(({ data, verticalFill,
                     {personal.email && <span>{personal.email}</span>}
                     {personal.phone && <><span>·</span><span>{personal.phone}</span></>}
                     {personal.location && <><span>·</span><span>{personal.location}</span></>}
-                    {personal.linkedin && <><span>·</span><span>LinkedIn</span></>}
+                    {personal.linkedin && <><span>·</span><span style={{ wordBreak: 'break-all' }}>{personal.linkedin}</span></>}
                 </div>
             </header>
 

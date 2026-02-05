@@ -44,13 +44,22 @@ export const generateCV = async (req: Request, res: Response) => {
             data: { usageCount: { increment: 1 } }
         });
 
+        // Prevent any caching of AI responses
+        res.set({
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        });
+
         // Return the analysis result
         res.json({
             tailoredProfile: result.tailoredProfile,
             layoutStrategy: result.layoutStrategy,
             matchScore: result.matchScore,
             suggestions: result.suggestions,
-            originalDescription: jobDescription
+            originalDescription: jobDescription,
+            jobTitle: result.jobTitle || '',
+            companyName: result.companyName || ''
         });
 
     } catch (error: any) {

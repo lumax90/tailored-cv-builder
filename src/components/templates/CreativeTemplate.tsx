@@ -125,8 +125,8 @@ const CreativeTemplate = forwardRef<HTMLDivElement, Props>(({ data, verticalFill
                         </span>
                     )}
                     {personal.linkedin && (
-                        <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: '9pt' }}>
-                            LinkedIn
+                        <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '20px', fontSize: '9pt', wordBreak: 'break-all' }}>
+                            {personal.linkedin}
                         </span>
                     )}
                 </div>

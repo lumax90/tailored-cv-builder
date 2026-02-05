@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCV } from '../store/CVContext';
-import { Plus, Trash2, Award, Briefcase, GraduationCap, Globe, BookOpen, User, Star, Medal } from 'lucide-react';
-import type { Experience, Education, Certification, Project, Language } from '../types';
+import { Plus, Trash2, Award, Briefcase, GraduationCap, Globe, BookOpen, User, Star, Medal, Users } from 'lucide-react';
+import type { Experience, Education, Certification, Project, Language, Reference } from '../types';
 import { TagInput } from '../components/TagInput';
 
 const Profile: React.FC = () => {
@@ -34,6 +34,7 @@ const Profile: React.FC = () => {
                 <VolunteeringSection />
                 <AwardsSection />
                 <PublicationsSection />
+                <ReferencesSection />
             </div>
         </div>
     );
@@ -533,6 +534,46 @@ const PublicationsSection: React.FC = () => {
                 </div>
             ))}
             <button className="btn btn-outline mt-4" onClick={addPub}><Plus size={16} /> Add Publication</button>
+        </SectionCard>
+    );
+};
+
+const ReferencesSection: React.FC = () => {
+    const { profile, updateProfile } = useCV();
+    const addRef = () => updateProfile('references', [...(profile.references || []), { 
+        id: crypto.randomUUID(), 
+        name: '', 
+        title: '', 
+        company: '', 
+        email: '', 
+        phone: '', 
+        relationship: '' 
+    }]);
+    return (
+        <SectionCard title="References" icon={<Users size={20} />}>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: 'var(--spacing-4)' }}>
+                Add professional references who can vouch for your work. These will only be included when explicitly requested.
+            </p>
+            {profile.references?.map(ref => (
+                <div key={ref.id} className="item-card">
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <IconButton onClick={() => updateProfile('references', profile.references.filter(i => i.id !== ref.id))} icon={<Trash2 size={16} />} />
+                    </div>
+                    <div className="grid-2">
+                        <input className="form-input" value={ref.name} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, name: e.target.value } : i))} placeholder="Full Name" />
+                        <input className="form-input" value={ref.relationship} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, relationship: e.target.value } : i))} placeholder="Relationship (e.g., Former Manager)" />
+                    </div>
+                    <div className="grid-2 mt-2">
+                        <input className="form-input" value={ref.title} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, title: e.target.value } : i))} placeholder="Job Title" />
+                        <input className="form-input" value={ref.company} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, company: e.target.value } : i))} placeholder="Company" />
+                    </div>
+                    <div className="grid-2 mt-2">
+                        <input className="form-input" type="email" value={ref.email} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, email: e.target.value } : i))} placeholder="Email" />
+                        <input className="form-input" type="tel" value={ref.phone} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, phone: e.target.value } : i))} placeholder="Phone" />
+                    </div>
+                </div>
+            ))}
+            <button className="btn btn-outline mt-4" onClick={addRef}><Plus size={16} /> Add Reference</button>
         </SectionCard>
     );
 };

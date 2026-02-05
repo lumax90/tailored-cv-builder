@@ -152,14 +152,19 @@ export const handleWebhook = async (req: Request, res: Response) => {
         const signature = req.headers['x-signature'] as string;
         const rawBody = JSON.stringify(req.body);
 
-        // Verify webhook signature (simplified - in production use crypto.timingSafeEqual)
+        // Verify webhook signature using timing-safe comparison
         if (LEMONSQUEEZY_WEBHOOK_SECRET) {
             const crypto = await import('crypto');
             const hmac = crypto.createHmac('sha256', LEMONSQUEEZY_WEBHOOK_SECRET);
             hmac.update(rawBody);
             const digest = hmac.digest('hex');
 
-            if (digest !== signature) {
+            // Use timing-safe comparison to prevent timing attacks
+            const digestBuffer = Buffer.from(digest, 'hex');
+            const signatureBuffer = Buffer.from(signature || '', 'hex');
+            
+            if (digestBuffer.length !== signatureBuffer.length || 
+                !crypto.timingSafeEqual(digestBuffer, signatureBuffer)) {
                 console.error('Invalid webhook signature');
                 return res.status(401).json({ error: 'Invalid signature' });
             }

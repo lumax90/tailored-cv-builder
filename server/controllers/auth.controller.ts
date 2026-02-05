@@ -58,8 +58,11 @@ export const register = async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Email and password required' });
     }
 
-    // Verify Turnstile (bot protection)
-    if (TURNSTILE_SECRET && turnstileToken) {
+    // Verify Turnstile (bot protection) - required when secret is configured
+    if (TURNSTILE_SECRET) {
+        if (!turnstileToken) {
+            return res.status(400).json({ error: 'Bot verification required. Please complete the challenge.' });
+        }
         const isHuman = await verifyTurnstile(turnstileToken);
         if (!isHuman) {
             return res.status(400).json({ error: 'Bot verification failed. Please try again.' });
@@ -93,23 +96,10 @@ export const register = async (req: Request, res: Response) => {
         // Send verification email
         await sendVerificationEmail(email, verificationToken, fullName);
 
-        // Create Token (but user needs to verify email first)
-        const token = jwt.sign(
-            { userId: user.id, email: user.email, tier: user.subscriptionTier },
-            JWT_SECRET,
-            { expiresIn: '7d' }
-        );
-
-        // Set Cookie
-        res.cookie('auth_token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        });
-
+        // Don't issue JWT until email is verified - user must verify first then login
         res.status(201).json({
-            user: sanitizeUser(user),
-            message: 'Please check your email to verify your account'
+            message: 'Registration successful. Please check your email to verify your account.',
+            needsVerification: true
         });
     } catch (e) {
         console.error(e);
@@ -120,8 +110,11 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
     const { email, password, turnstileToken } = req.body;
 
-    // Verify Turnstile (bot protection)
-    if (TURNSTILE_SECRET && turnstileToken) {
+    // Verify Turnstile (bot protection) - required when secret is configured
+    if (TURNSTILE_SECRET) {
+        if (!turnstileToken) {
+            return res.status(400).json({ error: 'Bot verification required. Please complete the challenge.' });
+        }
         const isHuman = await verifyTurnstile(turnstileToken);
         if (!isHuman) {
             return res.status(400).json({ error: 'Bot verification failed. Please try again.' });
@@ -168,14 +161,14 @@ export const login = async (req: Request, res: Response) => {
 export const verifyEmail = async (req: Request, res: Response) => {
     const { token } = req.params;
 
-    if (!token) {
+    if (!token || typeof token !== 'string') {
         return res.status(400).json({ error: 'Verification token required' });
     }
 
     try {
         const user = await prisma.user.findFirst({
             where: {
-                verificationToken: token,
+                verificationToken: token as string,
                 verificationExpires: { gt: new Date() }
             }
         });

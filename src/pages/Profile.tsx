@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCV } from '../store/CVContext';
 import { Plus, Trash2, Award, Briefcase, GraduationCap, Globe, BookOpen, User, Star, Medal, Users } from 'lucide-react';
-import type { Experience, Education, Certification, Project, Language, Reference } from '../types';
+import type { Experience, Education, Certification, Project, Language } from '../types';
 import { TagInput } from '../components/TagInput';
 
 const Profile: React.FC = () => {

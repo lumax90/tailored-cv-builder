@@ -34,8 +34,15 @@ app.use(cors({
     credentials: true
 }));
 
-// Body Parsing
-app.use(express.json({ limit: '5mb' })); // Allow larger payloads for PDF imports
+// Body Parsing - store raw body for webhook signature verification
+app.use(express.json({ 
+    limit: '5mb',
+    verify: (req: any, _res, buf) => {
+        if (req.originalUrl?.includes('/webhook') || req.url?.includes('/webhook')) {
+            req.rawBody = buf.toString();
+        }
+    }
+}));
 app.use(cookieParser());
 
 // Request Logging (Development)

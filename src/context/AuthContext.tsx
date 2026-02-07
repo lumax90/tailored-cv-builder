@@ -15,6 +15,7 @@ interface AuthContextType {
     login: (email: string, password: string, turnstileToken?: string) => Promise<void>;
     register: (email: string, password: string, fullName: string, turnstileToken?: string) => Promise<{ needsVerification?: boolean }>;
     logout: () => void;
+    refreshUser: () => Promise<void>;
     isAuthenticated: boolean;
 }
 
@@ -100,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, register, logout, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{ user, isLoading, login, register, logout, refreshUser: checkAuth, isAuthenticated: !!user }}>
             {children}
         </AuthContext.Provider>
     );

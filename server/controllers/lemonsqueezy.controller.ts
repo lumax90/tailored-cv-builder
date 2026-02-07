@@ -150,7 +150,13 @@ export const getCustomerPortal = async (req: Request, res: Response) => {
 export const handleWebhook = async (req: Request, res: Response) => {
     try {
         const signature = req.headers['x-signature'] as string;
-        const rawBody = JSON.stringify(req.body);
+        const rawBody = (req as any).rawBody || JSON.stringify(req.body);
+        
+        console.log('🍋 Webhook received:', { 
+            event: req.body?.meta?.event_name,
+            hasRawBody: !!(req as any).rawBody,
+            hasSignature: !!signature 
+        });
 
         // Verify webhook signature using timing-safe comparison
         if (LEMONSQUEEZY_WEBHOOK_SECRET) {

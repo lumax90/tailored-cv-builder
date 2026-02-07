@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Check, Star, Zap, Crown, Loader2, ExternalLink, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
@@ -21,7 +21,7 @@ interface PlanInfo {
 }
 
 const Billing: React.FC = () => {
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
     const [searchParams] = useSearchParams();
     const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -31,6 +31,27 @@ const Billing: React.FC = () => {
     const success = searchParams.get('success');
     const canceled = searchParams.get('canceled');
     const newTier = searchParams.get('tier');
+
+    // Poll for updated subscription after successful payment
+    const pollCountRef = useRef(0);
+    useEffect(() => {
+        if (!success || !newTier) return;
+        
+        // Webhook may take a few seconds to arrive - poll until tier updates
+        const interval = setInterval(async () => {
+            pollCountRef.current++;
+            await refreshUser();
+            
+            if (user?.subscriptionTier === newTier || pollCountRef.current >= 10) {
+                clearInterval(interval);
+            }
+        }, 3000); // Poll every 3 seconds, up to 30s
+
+        // Also refresh immediately
+        refreshUser();
+
+        return () => clearInterval(interval);
+    }, [success, newTier]);
 
     const plans: PlanInfo[] = [
         {

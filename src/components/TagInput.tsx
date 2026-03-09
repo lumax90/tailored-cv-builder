@@ -88,7 +88,7 @@ export const TagInput: React.FC<TagInputProps> = ({
                 background: 'var(--color-bg)',
                 minHeight: '42px'
             }}>
-                {value.map(tag => (
+                {(value || []).map(tag => (
                     <span key={tag} className="tag" style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--color-accent-subtle)', color: 'var(--color-accent)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>
                         {tag}
                         <button
@@ -105,7 +105,7 @@ export const TagInput: React.FC<TagInputProps> = ({
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={value.length === 0 ? placeholder : ''}
+                    placeholder={(value || []).length === 0 ? placeholder : ''}
                     style={{
                         border: 'none',
                         outline: 'none',

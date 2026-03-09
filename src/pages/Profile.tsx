@@ -487,14 +487,14 @@ const VolunteeringSection: React.FC = () => {
     const addVol = () => updateProfile('volunteer', [...(profile.volunteer || []), { id: crypto.randomUUID(), organization: '', role: '', startDate: '', endDate: '', current: false, description: '' }]);
     return (
         <SectionCard title="Volunteering" icon={<User size={20} />}>
-            {profile.volunteer?.map(v => (
+            {(profile.volunteer || []).map(v => (
                 <div key={v.id} className="item-card">
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><IconButton onClick={() => updateProfile('volunteer', profile.volunteer.filter(i => i.id !== v.id))} icon={<Trash2 size={16} />} /></div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><IconButton onClick={() => updateProfile('volunteer', (profile.volunteer || []).filter(i => i.id !== v.id))} icon={<Trash2 size={16} />} /></div>
                     <div className="grid-2">
-                        <input className="form-input" value={v.organization} onChange={e => updateProfile('volunteer', profile.volunteer.map(i => i.id === v.id ? { ...i, organization: e.target.value } : i))} placeholder="Organization" />
-                        <input className="form-input" value={v.role} onChange={e => updateProfile('volunteer', profile.volunteer.map(i => i.id === v.id ? { ...i, role: e.target.value } : i))} placeholder="Role" />
+                        <input className="form-input" value={v.organization} onChange={e => updateProfile('volunteer', (profile.volunteer || []).map(i => i.id === v.id ? { ...i, organization: e.target.value } : i))} placeholder="Organization" />
+                        <input className="form-input" value={v.role} onChange={e => updateProfile('volunteer', (profile.volunteer || []).map(i => i.id === v.id ? { ...i, role: e.target.value } : i))} placeholder="Role" />
                     </div>
-                    <textarea className="form-textarea mt-2" rows={2} value={v.description} onChange={e => updateProfile('volunteer', profile.volunteer.map(i => i.id === v.id ? { ...i, description: e.target.value } : i))} placeholder="Description" />
+                    <textarea className="form-textarea mt-2" rows={2} value={v.description} onChange={e => updateProfile('volunteer', (profile.volunteer || []).map(i => i.id === v.id ? { ...i, description: e.target.value } : i))} placeholder="Description" />
                 </div>
             ))}
             <button className="btn btn-outline mt-4" onClick={addVol}><Plus size={16} /> Add Volunteer Work</button>
@@ -507,12 +507,12 @@ const AwardsSection: React.FC = () => {
     const addAward = () => updateProfile('awards', [...(profile.awards || []), { id: crypto.randomUUID(), title: '', issuer: '', date: '', description: '' }]);
     return (
         <SectionCard title="Awards" icon={<Award size={20} />}>
-            {profile.awards?.map(a => (
+            {(profile.awards || []).map(a => (
                 <div key={a.id} className="item-card">
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><IconButton onClick={() => updateProfile('awards', profile.awards.filter(i => i.id !== a.id))} icon={<Trash2 size={16} />} /></div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><IconButton onClick={() => updateProfile('awards', (profile.awards || []).filter(i => i.id !== a.id))} icon={<Trash2 size={16} />} /></div>
                     <div className="grid-2">
-                        <input className="form-input" value={a.title} onChange={e => updateProfile('awards', profile.awards.map(i => i.id === a.id ? { ...i, title: e.target.value } : i))} placeholder="Award Title" />
-                        <input className="form-input" value={a.issuer} onChange={e => updateProfile('awards', profile.awards.map(i => i.id === a.id ? { ...i, issuer: e.target.value } : i))} placeholder="Issuer" />
+                        <input className="form-input" value={a.title} onChange={e => updateProfile('awards', (profile.awards || []).map(i => i.id === a.id ? { ...i, title: e.target.value } : i))} placeholder="Award Title" />
+                        <input className="form-input" value={a.issuer} onChange={e => updateProfile('awards', (profile.awards || []).map(i => i.id === a.id ? { ...i, issuer: e.target.value } : i))} placeholder="Issuer" />
                     </div>
                 </div>
             ))}
@@ -526,11 +526,11 @@ const PublicationsSection: React.FC = () => {
     const addPub = () => updateProfile('publications', [...(profile.publications || []), { id: crypto.randomUUID(), title: '', publisher: '', date: '', description: '' }]);
     return (
         <SectionCard title="Publications" icon={<BookOpen size={20} />}>
-            {profile.publications?.map(p => (
+            {(profile.publications || []).map(p => (
                 <div key={p.id} className="item-card">
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><IconButton onClick={() => updateProfile('publications', profile.publications.filter(i => i.id !== p.id))} icon={<Trash2 size={16} />} /></div>
-                    <input className="form-input mb-2" value={p.title} onChange={e => updateProfile('publications', profile.publications.map(i => i.id === p.id ? { ...i, title: e.target.value } : i))} placeholder="Title" />
-                    <input className="form-input" value={p.publisher} onChange={e => updateProfile('publications', profile.publications.map(i => i.id === p.id ? { ...i, publisher: e.target.value } : i))} placeholder="Publisher / Link" />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}><IconButton onClick={() => updateProfile('publications', (profile.publications || []).filter(i => i.id !== p.id))} icon={<Trash2 size={16} />} /></div>
+                    <input className="form-input mb-2" value={p.title} onChange={e => updateProfile('publications', (profile.publications || []).map(i => i.id === p.id ? { ...i, title: e.target.value } : i))} placeholder="Title" />
+                    <input className="form-input" value={p.publisher} onChange={e => updateProfile('publications', (profile.publications || []).map(i => i.id === p.id ? { ...i, publisher: e.target.value } : i))} placeholder="Publisher / Link" />
                 </div>
             ))}
             <button className="btn btn-outline mt-4" onClick={addPub}><Plus size={16} /> Add Publication</button>
@@ -540,36 +540,36 @@ const PublicationsSection: React.FC = () => {
 
 const ReferencesSection: React.FC = () => {
     const { profile, updateProfile } = useCV();
-    const addRef = () => updateProfile('references', [...(profile.references || []), { 
-        id: crypto.randomUUID(), 
-        name: '', 
-        title: '', 
-        company: '', 
-        email: '', 
-        phone: '', 
-        relationship: '' 
+    const addRef = () => updateProfile('references', [...(profile.references || []), {
+        id: crypto.randomUUID(),
+        name: '',
+        title: '',
+        company: '',
+        email: '',
+        phone: '',
+        relationship: ''
     }]);
     return (
         <SectionCard title="References" icon={<Users size={20} />}>
             <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: 'var(--spacing-4)' }}>
                 Add professional references who can vouch for your work. These will only be included when explicitly requested.
             </p>
-            {profile.references?.map(ref => (
+            {(profile.references || []).map(ref => (
                 <div key={ref.id} className="item-card">
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <IconButton onClick={() => updateProfile('references', profile.references.filter(i => i.id !== ref.id))} icon={<Trash2 size={16} />} />
+                        <IconButton onClick={() => updateProfile('references', (profile.references || []).filter(i => i.id !== ref.id))} icon={<Trash2 size={16} />} />
                     </div>
                     <div className="grid-2">
-                        <input className="form-input" value={ref.name} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, name: e.target.value } : i))} placeholder="Full Name" />
-                        <input className="form-input" value={ref.relationship} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, relationship: e.target.value } : i))} placeholder="Relationship (e.g., Former Manager)" />
+                        <input className="form-input" value={ref.name} onChange={e => updateProfile('references', (profile.references || []).map(i => i.id === ref.id ? { ...i, name: e.target.value } : i))} placeholder="Full Name" />
+                        <input className="form-input" value={ref.relationship} onChange={e => updateProfile('references', (profile.references || []).map(i => i.id === ref.id ? { ...i, relationship: e.target.value } : i))} placeholder="Relationship (e.g., Former Manager)" />
                     </div>
                     <div className="grid-2 mt-2">
-                        <input className="form-input" value={ref.title} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, title: e.target.value } : i))} placeholder="Job Title" />
-                        <input className="form-input" value={ref.company} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, company: e.target.value } : i))} placeholder="Company" />
+                        <input className="form-input" value={ref.title} onChange={e => updateProfile('references', (profile.references || []).map(i => i.id === ref.id ? { ...i, title: e.target.value } : i))} placeholder="Job Title" />
+                        <input className="form-input" value={ref.company} onChange={e => updateProfile('references', (profile.references || []).map(i => i.id === ref.id ? { ...i, company: e.target.value } : i))} placeholder="Company" />
                     </div>
                     <div className="grid-2 mt-2">
-                        <input className="form-input" type="email" value={ref.email} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, email: e.target.value } : i))} placeholder="Email" />
-                        <input className="form-input" type="tel" value={ref.phone} onChange={e => updateProfile('references', profile.references.map(i => i.id === ref.id ? { ...i, phone: e.target.value } : i))} placeholder="Phone" />
+                        <input className="form-input" type="email" value={ref.email} onChange={e => updateProfile('references', (profile.references || []).map(i => i.id === ref.id ? { ...i, email: e.target.value } : i))} placeholder="Email" />
+                        <input className="form-input" type="tel" value={ref.phone} onChange={e => updateProfile('references', (profile.references || []).map(i => i.id === ref.id ? { ...i, phone: e.target.value } : i))} placeholder="Phone" />
                     </div>
                 </div>
             ))}

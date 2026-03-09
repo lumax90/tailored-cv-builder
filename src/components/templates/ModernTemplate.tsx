@@ -154,7 +154,7 @@ const ModernTemplate = forwardRef<HTMLDivElement, Props>(({ data, verticalFill, 
                     )}
 
                     {/* Languages */}
-                    {languages.length > 0 && (
+                    {(languages || []).length > 0 && (
                         <div style={{ marginBottom: '20px' }}>
                             <h3 style={{
                                 fontSize: '9pt',
@@ -166,7 +166,7 @@ const ModernTemplate = forwardRef<HTMLDivElement, Props>(({ data, verticalFill, 
                             }}>
                                 Languages
                             </h3>
-                            {languages.map((lang, idx) => (
+                            {(languages || []).map((lang, idx) => (
                                 <p key={idx} style={{ fontSize: '9pt', marginBottom: '2px' }}>
                                     <strong>{lang.language}</strong>
                                     {lang.proficiency && <span style={{ color: '#6B7280' }}> - {lang.proficiency}</span>}
@@ -176,7 +176,7 @@ const ModernTemplate = forwardRef<HTMLDivElement, Props>(({ data, verticalFill, 
                     )}
 
                     {/* Certifications */}
-                    {certifications.length > 0 && (
+                    {(certifications || []).length > 0 && (
                         <div>
                             <h3 style={{
                                 fontSize: '9pt',
@@ -188,7 +188,7 @@ const ModernTemplate = forwardRef<HTMLDivElement, Props>(({ data, verticalFill, 
                             }}>
                                 Certifications
                             </h3>
-                            {certifications.map((cert, idx) => (
+                            {(certifications || []).map((cert, idx) => (
                                 <p key={idx} style={{ fontSize: '9pt', marginBottom: '4px' }}>
                                     {cert.name}
                                     {cert.issuer && <span style={{ color: '#6B7280' }}> - {cert.issuer}</span>}

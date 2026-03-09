@@ -239,8 +239,7 @@ const MinimalTemplate = forwardRef<HTMLDivElement, Props>(({ data, verticalFill,
                 </section>
             )}
 
-            {/* Languages & Certifications in footer */}
-            {(languages.length > 0 || certifications.length > 0) && (
+            {((languages || []).length > 0 || (certifications || []).length > 0) && (
                 <footer style={{
                     borderTop: '1px solid #E5E5E5',
                     paddingTop: '20px',
@@ -251,14 +250,14 @@ const MinimalTemplate = forwardRef<HTMLDivElement, Props>(({ data, verticalFill,
                     fontSize: '9pt',
                     color: '#888'
                 }}>
-                    {languages.length > 0 && (
+                    {(languages || []).length > 0 && (
                         <div>
-                            <strong>Languages:</strong> {languages.map(l => l.language).join(', ')}
+                            <strong>Languages:</strong> {(languages || []).map(l => l.language).join(', ')}
                         </div>
                     )}
-                    {certifications.length > 0 && (
+                    {(certifications || []).length > 0 && (
                         <div>
-                            <strong>Certifications:</strong> {certifications.map(c => c.name).join(', ')}
+                            <strong>Certifications:</strong> {(certifications || []).map(c => c.name).join(', ')}
                         </div>
                     )}
                 </footer>

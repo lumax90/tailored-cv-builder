@@ -53,11 +53,11 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
             {(layoutStrategy?.sectionOrder || ['education', 'experience', 'projects', 'skills', 'certifications', 'publications', 'awards', 'volunteer']).map(sectionId => {
                 const sectionIdLower = sectionId.toLowerCase();
 
-                if (sectionIdLower === 'education' && education.length > 0) {
+                if (sectionIdLower === 'education' && (education || []).length > 0) {
                     return (
                         <section key="education" className="cv-section">
                             <h2 className="cv-header">Education</h2>
-                            {education.map(edu => (
+                            {(education || []).map(edu => (
                                 <div key={edu.id} className="cv-item">
                                     <div className="cv-row">
                                         <strong>{edu.institution}</strong>, {edu.location}
@@ -75,11 +75,11 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                     );
                 }
 
-                if (sectionIdLower === 'experience' && experience.length > 0) {
+                if (sectionIdLower === 'experience' && (experience || []).length > 0) {
                     return (
                         <section key="experience" className="cv-section">
                             <h2 className="cv-header">Experience</h2>
-                            {experience.map(exp => (
+                            {(experience || []).map(exp => (
                                 <div key={exp.id} className="cv-item">
                                     <div className="cv-row">
                                         <strong>{exp.company}</strong>, {exp.location}
@@ -89,9 +89,9 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                                         {exp.role}
                                     </div>
                                     {exp.description && <div className="cv-description" style={{ whiteSpace: 'pre-line' }}>{exp.description}</div>}
-                                    {exp.technologies && exp.technologies.length > 0 && (
+                                    {exp.technologies && (exp.technologies || []).length > 0 && (
                                         <div className="cv-description" style={{ marginTop: '2px', fontStyle: 'italic', fontSize: '0.85em' }}>
-                                            Stack: {exp.technologies.join(', ')}
+                                            Stack: {(exp.technologies || []).join(', ')}
                                         </div>
                                     )}
                                 </div>
@@ -100,11 +100,11 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                     );
                 }
 
-                if (sectionIdLower === 'projects' && projects.length > 0) {
+                if (sectionIdLower === 'projects' && (projects || []).length > 0) {
                     return (
                         <section key="projects" className="cv-section">
                             <h2 className="cv-header">Projects</h2>
-                            {projects.map(proj => (
+                            {(projects || []).map(proj => (
                                 <div key={proj.id} className="cv-item">
                                     <div className="cv-row">
                                         <strong>{proj.name}</strong>
@@ -114,14 +114,14 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                                         {proj.role}
                                     </div>
                                     <div className="cv-description">{proj.description}</div>
-                                    {proj.technologies.length > 0 && <div className="cv-description" style={{ fontSize: '0.85em', fontStyle: 'italic' }}>Stack: {proj.technologies.join(', ')}</div>}
+                                    {(proj.technologies || []).length > 0 && <div className="cv-description" style={{ fontSize: '0.85em', fontStyle: 'italic' }}>Stack: {(proj.technologies || []).join(', ')}</div>}
                                 </div>
                             ))}
                         </section>
                     );
                 }
 
-                if ((sectionIdLower === 'skills' || sectionIdLower === 'languages') && (skills.length > 0 || languages.length > 0)) {
+                if ((sectionIdLower === 'skills' || sectionIdLower === 'languages') && ((skills || []).length > 0 || (languages || []).length > 0)) {
                     // Combined Skills & Languages usually, but we can separate if strictly requested. 
                     // For Harvard template, they are often combined or adjacent.
                     // To avoid duplicating if 'skills' and 'languages' are both in the list, we'll check if we already rendered it?
@@ -131,10 +131,10 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                             <section key="skills" className="cv-section">
                                 <h2 className="cv-header">Skills & Interests</h2>
                                 <div className="cv-description">
-                                    <div style={{ marginBottom: '4px' }}><strong>Skills:</strong> {skills.join(', ')}</div>
-                                    {languages && languages.length > 0 && (
+                                    <div style={{ marginBottom: '4px' }}><strong>Skills:</strong> {(skills || []).join(', ')}</div>
+                                    {languages && (languages || []).length > 0 && (
                                         <div>
-                                            <strong>Languages:</strong> {languages.map(l => `${l.language} (${l.proficiency})`).join(', ')}
+                                            <strong>Languages:</strong> {(languages || []).map(l => `${l.language} (${l.proficiency})`).join(', ')}
                                         </div>
                                     )}
                                 </div>
@@ -145,11 +145,11 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                     return null;
                 }
 
-                if (sectionIdLower === 'certifications' && certifications.length > 0) {
+                if (sectionIdLower === 'certifications' && (certifications || []).length > 0) {
                     return (
                         <section key="certifications" className="cv-section">
                             <h2 className="cv-header">Certifications</h2>
-                            {certifications.map(cert => (
+                            {(certifications || []).map(cert => (
                                 <div key={cert.id} className="cv-item" style={{ marginBottom: '0.25rem' }}>
                                     <div className="cv-row">
                                         <span><strong>{cert.name}</strong>, {cert.issuer}</span>
@@ -161,11 +161,11 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                     );
                 }
 
-                if (sectionIdLower === 'publications' && publications.length > 0) {
+                if (sectionIdLower === 'publications' && (publications || []).length > 0) {
                     return (
                         <section key="publications" className="cv-section">
                             <h2 className="cv-header">Publications</h2>
-                            {publications.map(pub => (
+                            {(publications || []).map(pub => (
                                 <div key={pub.id} className="cv-item" style={{ marginBottom: '0.25rem' }}>
                                     <div className="cv-description">
                                         <strong>{pub.title}</strong>, {pub.publisher} ({pub.date})
@@ -176,11 +176,11 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                     );
                 }
 
-                if (sectionIdLower === 'awards' && awards.length > 0) {
+                if (sectionIdLower === 'awards' && (awards || []).length > 0) {
                     return (
                         <section key="awards" className="cv-section">
                             <h2 className="cv-header">Honors & Awards</h2>
-                            {awards.map(award => (
+                            {(awards || []).map(award => (
                                 <div key={award.id} className="cv-item" style={{ marginBottom: '0.25rem' }}>
                                     <div className="cv-row">
                                         <span><strong>{award.title}</strong>, {award.issuer}</span>
@@ -192,11 +192,11 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                     );
                 }
 
-                if (sectionIdLower === 'volunteer' && volunteer.length > 0) {
+                if (sectionIdLower === 'volunteer' && (volunteer || []).length > 0) {
                     return (
                         <section key="volunteer" className="cv-section">
                             <h2 className="cv-header">Volunteering</h2>
-                            {volunteer.map(vol => (
+                            {(volunteer || []).map(vol => (
                                 <div key={vol.id} className="cv-item">
                                     <div className="cv-row">
                                         <strong>{vol.organization}</strong>
@@ -210,12 +210,12 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                     );
                 }
 
-                if (sectionIdLower === 'references' && references.length > 0) {
+                if (sectionIdLower === 'references' && (references || []).length > 0) {
                     return (
                         <section key="references" className="cv-section">
                             <h2 className="cv-header">References</h2>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
-                                {references.map(ref => (
+                                {(references || []).map(ref => (
                                     <div key={ref.id} className="cv-item" style={{ marginBottom: '0.25rem' }}>
                                         <div><strong>{ref.name}</strong></div>
                                         <div style={{ fontSize: '10pt' }}>{ref.title}{ref.company && `, ${ref.company}`}</div>

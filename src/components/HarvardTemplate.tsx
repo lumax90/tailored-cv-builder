@@ -60,7 +60,7 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                             {(education || []).map(edu => (
                                 <div key={edu.id} className="cv-item">
                                     <div className="cv-row">
-                                        <strong>{edu.institution}</strong>, {edu.location}
+                                        <strong>{edu.institution}</strong>{edu.location ? `, ${edu.location}` : ''}
                                         <span className="cv-date">{edu.endDate}</span>
                                     </div>
                                     <div className="cv-row" style={{ marginBottom: '0.1rem' }}>
@@ -82,7 +82,7 @@ const HarvardTemplate = forwardRef<HTMLDivElement, Props>(({ data, layoutStrateg
                             {(experience || []).map(exp => (
                                 <div key={exp.id} className="cv-item">
                                     <div className="cv-row">
-                                        <strong>{exp.company}</strong>, {exp.location}
+                                        <strong>{exp.company}</strong>{exp.location ? `, ${exp.location}` : ''}
                                         <span className="cv-date">{exp.startDate} – {exp.endDate || (exp.current ? 'Present' : '')}</span>
                                     </div>
                                     <div className="cv-row" style={{ fontStyle: 'italic', marginBottom: '0.25rem' }}>

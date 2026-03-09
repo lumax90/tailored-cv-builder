@@ -83,9 +83,9 @@ You MUST actively transform the content, not just copy it. For each section:
 
 2. **Experience**: For EACH experience entry:
    - Rewrite descriptions using ACTION VERBS + METRICS where possible
-   - Incorporate relevant keywords from job description
-   - Emphasize achievements that match job requirements
-   - Add context that shows relevance to target role
+   - Emphasize existing achievements and responsibilities that match the target role
+   - REPHRASE original tools/skills to match the job vocabulary ONLY if they are virtually identical concepts
+   - ⚠️ CRITICALLY IMPORTANT: DO NOT add tools, technologies, or keywords to an experience if the candidate did not explicitly use them there. DO NOT hallucinate job keywords into past experiences just to hit a match score.
    - Each description should be 3-6 bullet points or 4-8 lines minimum
 
 3. **Skills**: 
@@ -105,16 +105,16 @@ You MUST actively transform the content, not just copy it. For each section:
 **WHAT YOU MUST NOT DO:**
 - Do NOT copy the profile unchanged - that defeats the purpose
 - Do NOT fabricate jobs, companies, or degrees that don't exist
+- Do NOT insert fake skills, technologies, or keywords into past jobs where they were not used (NO HALLUCINATION)
 - Do NOT shorten or summarize content into a skeleton
 - Do NOT ignore the job description language
 - Do NOT remove experiences without good reason
 
 **VALUE-ADD REQUIREMENT:**
-Every tailored CV should be NOTICEABLY BETTER than the input:
-- More compelling language
-- Better keyword optimization
-- Clearer achievement focus
-- Stronger relevance to the target job`;
+Every tailored CV should be NOTICEABLY BETTER than the input purely through better phrasing and emphasis, NEVER through fabrication:
+- More compelling language and stronger action verbs
+- Clarify existing experience to show relevance to the target job
+- Restructure bullet points for better impact`;
 
 /**
  * Sanitize and validate AI response to ensure all required fields exist
@@ -170,29 +170,29 @@ function detectUnchangedContent(aiProfile: any, originalProfile: CVProfile): { u
     // Check summary - THIS IS THE CRITICAL ONE
     const aiSummary = aiProfile?.personal?.summary;
     const originalSummary = originalProfile.personal.summary;
-    
+
     // Summary is a problem if: missing, empty, or identical to original
     const summaryMissing = !aiSummary || aiSummary.length < 20;
     const summaryIdentical = aiSummary === originalSummary && originalSummary && originalSummary.length > 20;
-    
+
     if (summaryMissing) {
         issues.push('summary_missing');
     } else if (summaryIdentical) {
         issues.push('summary_identical');
     }
-    
+
     // Check first experience description (if exists)
     if (aiProfile?.experience?.[0]?.description && originalProfile.experience?.[0]?.description) {
         if (aiProfile.experience[0].description === originalProfile.experience[0].description) {
             issues.push('experience[0].description');
         }
     }
-    
+
     // Check title
     if (aiProfile?.personal?.title === originalProfile.personal.title && originalProfile.personal.title) {
         issues.push('title');
     }
-    
+
     // Summary missing or identical alone is enough to trigger retry
     return { unchanged: summaryMissing || summaryIdentical || issues.length >= 2, details: issues };
 }
@@ -253,7 +253,7 @@ WHAT TO KEEP UNCHANGED (contact info only):
 WHAT MUST BE REWRITTEN (mandatory):
 - summary → Write completely new text
 - title → Tailor to job title
-- experience descriptions → Rewrite with job keywords
+- experience descriptions → Rewrite to highlight relevant aspects, but DO NOT invent or stuff fake technical keywords
 - skills order → Prioritize job-relevant skills
 
 Return ONLY valid JSON.`;
